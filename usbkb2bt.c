@@ -44,6 +44,19 @@ Done
 #define MODE_DOUBLE 1
 #define MODE_NUMERIC 2
 
+#define TARGET1	 "FC:19:10:FE:DE:9F"
+#define TARGET2	 "F0:5A:09:33:9D:ED"
+#define TARGET3	 "6C:F3:73:54:98:C7"
+#define TARGET4	 "24:FD:52:33:D4:26"
+#define TARGET5	 
+#define TARGET6	 
+#define TARGET7	 
+#define TARGET8	 
+#define TARGET9	 
+#define TARGET0	 
+
+
+
 void handler (int sig)
 {
 	printf ("nexiting...(%d)n", sig);
@@ -82,6 +95,7 @@ int main (int argc, char *argv[])
 	//signal(SIGINT, SIG_IGN);
 
 	unsigned char buf[12];
+	unsigned char paired_device_name[20];
 
 	int connected = 0;
 
@@ -136,13 +150,12 @@ int main (int argc, char *argv[])
 
 	//bt_connect("FC:19:10:FE:DE:9F"); // duo
 	//bt_connect("F0:5A:09:33:9D:ED"); // tab27
+	//bt_connect("6C:F3:73:54:98:C7"); // mini S3
+	//bt_connect("24:FD:52:33:D4:26"); // Atos PC
 	paired_device_name[17] = 0;
 	printf("Trying to connect to %s \n", paired_device_name);
 	bt_connect(paired_device_name);
 */
-	//bt_connect("6C:F3:73:54:98:C7"); // mini S3
-	bt_connect("24:FD:52:33:D4:26"); // Atos PC
-	connected = 1;
 
 	while (1)
 	{
@@ -211,6 +224,7 @@ int main (int argc, char *argv[])
 			}
 
 			if (isControlDown && isAltDown && isShiftDown && (ev[i].code == 0x03))	
+			//if (ev[i].code == 0x62)
 			{
 				if (target == 2)
 				{
@@ -227,10 +241,11 @@ int main (int argc, char *argv[])
 			}
 
 			if (isControlDown && isAltDown && isShiftDown && (ev[i].code == 0x04))	
+			//if (ev[i].code == 0x37)	
 			{
 				if (target == 3)
 				{
-					printf("Already connected to tab27 - nothing to do\n");
+					printf("Already connected to mini S3 - nothing to do\n");
 				}
 				else
 				{
@@ -257,7 +272,9 @@ int main (int argc, char *argv[])
 				target = 4;
 				}
 			}
-
+	
+			// numeric keypads throw tons of 0x45. they must be ignored
+			if (ev[i].code == 0x45)	continue;
 
 
 			if (ev[i].code == 0x01)	bt_code = 0x29; //Esc
@@ -349,6 +366,23 @@ int main (int argc, char *argv[])
 			if (ev[i].code == 0x69)	bt_code = 0x50; //Left 
 			if (ev[i].code == 0x6a)	bt_code = 0x4f; //Right 
 
+			// Numeric Keypad
+			if (ev[i].code == 0x4f)	bt_code = 0x1e; //1
+			if (ev[i].code == 0x50)	bt_code = 0x1f; //2 
+			if (ev[i].code == 0x51)	bt_code = 0x20; //2 
+			if (ev[i].code == 0x4b)	bt_code = 0x21; //4 
+			if (ev[i].code == 0x4c)	bt_code = 0x22; //5 
+			if (ev[i].code == 0x4d)	bt_code = 0x23; //6 
+			if (ev[i].code == 0x47)	bt_code = 0x24; //7 
+			if (ev[i].code == 0x48)	bt_code = 0x25; //8 
+			if (ev[i].code == 0x49)	bt_code = 0x26; //9 
+			if (ev[i].code == 0x52)	bt_code = 0x27; //0 
+
+			if (ev[i].code == 0x1c)	bt_code = 0x28; //Enter 
+			if (ev[i].code == 0x0e)	bt_code = 0x2a; //Back space 
+			if (ev[i].code == 0x53)	bt_code = 0x27; //Delete
+			if (ev[i].code == 0x4a)	bt_code = 0x2d; //- 
+			if (ev[i].code == 0x4e)	bt_code = 0x2e; //+ 
 
 
 	if(isControlDown)
