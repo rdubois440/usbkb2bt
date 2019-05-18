@@ -304,7 +304,8 @@ int bt_connect(char *target)
 	//sdp_open();
 	//sdp_add_keyboard();
 	//printf("sdp record created\n\n");
-
+	do
+	{
 
 	fprintf(stderr, "Trying to connect to %s \n", target);
 	str2ba(target, &dst);
@@ -313,7 +314,8 @@ int bt_connect(char *target)
 	perror("HID control channel\n");
 	is = l2cap_connect(BDADDR_ANY, &dst, L2CAP_PSM_HIDP_INTR);
 	perror("HID interupt channel");
-	printf("Connection created ! \n");
+	printf("Connection created ! cs=%d  is=%d  \n", cs, is);
+	} while ((is < 0) || (cs < 0));
 
 	return EXIT_SUCCESS;
 }
