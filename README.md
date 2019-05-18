@@ -158,6 +158,24 @@ Agent unregistered
 
 If this does not work, try to initiate the pairing from the device, while bluetoothctl is active
 
+
+Other alternative, initiate the pairing from the emulator, but with 
+agent NoInputNoOutput
+
+
+## Unpairing
+
+If the dongle is already paired with the device, and you want to unpair and pair again, make sure to unpair from both ends: from the Raspberry Pi and from the device.   
+
+* To unpair from Raspberry
+$ bluetoothctl
+[bluetooth]# remove F0:5A:09:33:9D:ED
+
+* To unpair from the device, use the graphical user interface on your device
+
+
+
+
 ## Run the program
 
 sudo ./usbkb2bt /dev/input/event0

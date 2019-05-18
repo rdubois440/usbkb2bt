@@ -44,11 +44,11 @@ Done
 #define MODE_DOUBLE 1
 #define MODE_NUMERIC 2
 
-#define TARGET1	 "FC:19:10:FE:DE:9F"
-#define TARGET2	 "F0:5A:09:33:9D:ED"
-#define TARGET3	 "6C:F3:73:54:98:C7"
-#define TARGET4	 "24:FD:52:33:D4:26"
-#define TARGET5	 
+#define TARGET2	 "FC:19:10:FE:DE:9F"		// Duos Rene
+#define TARGET1	 "24:92:0E:DC:F1:F7"		// J3 Rene
+#define TARGET3	 "F0:5A:09:33:9D:ED"
+#define TARGET4	 "6C:F3:73:54:98:C7"
+#define TARGET5	 "24:FD:52:33:D4:26"
 #define TARGET6	 
 #define TARGET7	 
 #define TARGET8	 
@@ -74,7 +74,9 @@ int main (int argc, char *argv[])
 	struct input_event ev[64];
 	int fdk, rd, size = sizeof (struct input_event);
 	char name[256] = "Unknown";
-	char *kbdDevice = NULL;
+	char kbdDevice[64];
+	char btDevice[64];
+	int kbdId, btId;		
 	int i;
 
 	fd_set fds;
@@ -101,13 +103,23 @@ int main (int argc, char *argv[])
 
 	//Setup check
 	if (argv[1] == NULL){
-		printf("Usage : fpad /dev/input/event_number\n");
-		printf("Please specify (on the command line) the path to the dev event interface device\n");
+		printf("Usage : usbkb2bt btId kbdId\n");
+		printf("Using hid0 and /dev/input/event0\n");
 		printf("See /proc/bus/input/devices\n");
-		exit (0);
+		kbdId = 0;
+		btId = 0;		
 	}
 
-	kbdDevice = argv[1];
+	else
+	{
+		btId = atoi(argv[1]);
+		kbdId = atoi(argv[2]);
+	}
+
+
+	printf("Using btId %d and kbdId %d\n", btId, kbdId);
+	sprintf(kbdDevice, "/dev/input/event%d", kbdId);
+	printf("Using kbdId %d\n", kbdDevice);
 
 	if ((getuid ()) != 0)
 	{
@@ -156,6 +168,12 @@ int main (int argc, char *argv[])
 	printf("Trying to connect to %s \n", paired_device_name);
 	bt_connect(paired_device_name);
 */
+	printf("Connecting to Duos\n");
+	//bt_connect("24:92:0E:DC:F1:F7");		// J3 Rene
+	//bt_connect("FC:19:10:FE:DE:9F"); // duo
+	bt_connect(TARGET1); // duo
+	connected = 1;
+	target = 1;
 
 	while (1)
 	{
@@ -223,6 +241,22 @@ int main (int argc, char *argv[])
 				continue;
 			}
 
+			if (isControlDown && isAltDown && isShiftDown && (ev[i].code == 0x02))	
+			//if (ev[i].code == 0x62)
+			{
+				if (target == 1)
+				{
+					printf("Already connected to tab27 - nothing to do\n");
+				}
+				else
+				{
+				bt_disconnect();
+				bt_connect(TARGET1); 			// J3
+				printf("Connecting to tab27\n");
+				connected = 1;
+				target = 2;
+				}
+			}
 			if (isControlDown && isAltDown && isShiftDown && (ev[i].code == 0x03))	
 			//if (ev[i].code == 0x62)
 			{
@@ -233,7 +267,8 @@ int main (int argc, char *argv[])
 				else
 				{
 				bt_disconnect();
-				bt_connect("F0:5A:09:33:9D:ED"); // tab27
+				//bt_connect("F0:5A:09:33:9D:ED"); 	// J3 
+				bt_connect(TARGET2); 			// J3
 				printf("Connecting to tab27\n");
 				connected = 1;
 				target = 2;
@@ -261,13 +296,14 @@ int main (int argc, char *argv[])
 			{
 				if (target == 4)
 				{
-					printf("Already connected to Atos PC - nothing to do\n");
+					printf("Already connected to J3 - nothing to do\n");
 				}
 				else
 				{
 				bt_disconnect();
-				bt_connect("24:FD:52:33:D4:26"); // Atos PC
-				printf("Connecting to  Atos PC");
+				printf("Connecting to  J3 Rene ");
+				bt_connect("24:92:0E:DC:F1:F7");		// J3 Rene
+
 				connected = 1;
 				target = 4;
 				}
